@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDP Junior - Python va Web (Uzum Misolida)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pdp-cyan': '#00D1D1',
+                        'pdp-dark': '#0F172A',
+                        'uzum-main': '#7000FF', // Uzum brand color
+                        'uzum-bg': '#F2F4F7'
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                        'mono': ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        /* PDP Junior Ranglari */
+        .text-pdp-cyan { color: #00D1D1; }
+        .bg-pdp-cyan { background-color: #00D1D1; }
+        .text-pdp-dark { color: #0F172A; }
+        .bg-pdp-dark { background-color: #0F172A; }
+        .border-pdp-cyan { border-color: #00D1D1; }
+
+        /* Slayder oynasi */
+        .slider-window {
+            width: 100%;
+            height: calc(100vh - 80px); /* Header balandligini ayiramiz */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slides-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Vertikal markazlash */
+            padding: 0.5rem 1rem;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        /* Animatsiyalar */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-float-delayed { animation: float 4s ease-in-out infinite 1s; }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        .animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        @keyframes matrix-flow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+        .bg-matrix {
+            background: linear-gradient(0deg, transparent 24%, rgba(0, 255, 0, .05) 25%, rgba(0, 255, 0, .05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .05) 75%, rgba(0, 255, 0, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 255, 0, .05) 25%, rgba(0, 255, 0, .05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .05) 75%, rgba(0, 255, 0, .05) 76%, transparent 77%, transparent);
+            background-size: 30px 30px;
+        }
+
+        /* Uzum Card Animation */
+        .uzum-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- Header (PDP Junior Style) -->
+    <header class="h-[80px] w-full flex items-center justify-between px-6 md:px-12 border-b border-gray-100 bg-white z-50 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="relative w-12 h-12 flex items-center justify-center bg-pdp-cyan rounded-full">
+                <div class="w-8 h-4 bg-pdp-dark rounded-full flex items-center justify-center gap-1">
+                    <span class="text-pdp-cyan font-bold text-[10px]">&gt;</span>
+                    <span class="w-2 h-[2px] bg-pdp-cyan rounded-full"></span>
+                </div>
+            </div>
+            <div class="flex flex-col leading-none">
+                <span class="text-2xl font-extrabold text-pdp-dark tracking-tight">PDP</span>
+                <span class="text-xl font-bold text-pdp-cyan tracking-tight">Junior</span>
+            </div>
+        </div>
+
+        <div class="flex gap-4 items-center">
+            <button onclick="prevSlide()" id="prevBtn" class="w-10 h-10 rounded-full border-2 border-gray-200 text-gray-400 hover:border-pdp-cyan hover:text-pdp-cyan flex items-center justify-center transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-gray-400">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="slide-counter" class="flex items-center text-gray-500 font-semibold w-16 justify-center">1 / 7</span>
+            <button onclick="nextSlide()" id="nextBtn" class="w-10 h-10 rounded-full bg-pdp-cyan text-white shadow-lg hover:bg-opacity-90 flex items-center justify-center transition-transform active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Slider -->
+    <main class="slider-window">
+        <div class="slides-wrapper" id="slidesWrapper">
+
+            <!-- Slide 1: Uzum Brauzer Ko'rinishi -->
+            <div class="slide bg-white flex items-center justify-center">
+                <div class="w-full max-w-5xl px-4 flex flex-col items-center h-full justify-center">
+                    <span class="px-4 py-1 bg-purple-100 text-uzum-main rounded-full text-xs font-bold mb-3 border border-purple-200">1-qadam: Web Sayt</span>
+                    <h2 class="text-2xl md:text-4xl font-black text-pdp-dark mb-2 text-center">
+                        Biz bilgan <span class="text-uzum-main">Uzum Market</span>
+                    </h2>
+                    <p class="text-gray-500 mb-4 text-center text-sm md:text-base">
+                        Foydalanuvchi sifatida biz saytning faqat <b>tashqi ko'rinishini</b> ko'ramiz.
+                    </p>
+
+                    <!-- Browser Mockup (Compact) -->
+                    <div class="w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col h-[60vh] md:h-[55vh] relative group">
+                        <!-- Browser Bar -->
+                        <div class="bg-gray-100 px-3 py-2 flex items-center gap-3 border-b border-gray-200 shrink-0">
+                            <div class="flex gap-1.5">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                            </div>
+                            <div class="flex-1 bg-white rounded-md px-3 py-1 text-[10px] md:text-xs text-gray-500 flex items-center gap-2 shadow-sm border border-gray-200 font-mono">
+                                <i class="fas fa-lock text-green-500"></i>
+                                https://uzum.uz
+                            </div>
+                        </div>
+
+                        <!-- Website Content (Realistic) -->
+                        <div class="flex-1 overflow-hidden bg-[#F2F4F7] relative flex flex-col">
+                            <!-- Purple Header -->
+                            <div class="bg-[#7000FF] p-3 md:p-4 text-white flex items-center gap-4 justify-between shadow-md shrink-0">
+                                <span class="text-xl md:text-2xl font-black tracking-tighter lowercase">uzum market</span>
+
+                                <!-- Search Bar -->
+                                <div class="hidden md:flex flex-1 mx-4 max-w-lg relative">
+                                    <input type="text" placeholder="Mahsulot va turkumlar..." class="w-full py-2 px-4 rounded-md text-gray-700 text-sm focus:outline-none">
+                                    <button class="absolute right-0 top-0 h-full px-4 bg-[#F2F4F7] text-gray-500 rounded-r-md hover:bg-gray-200 transition">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+
+                                <div class="flex gap-4 text-white/90 text-sm md:text-base items-center">
+                                    <div class="hidden md:flex flex-col items-center cursor-pointer hover:text-white">
+                                        <i class="far fa-user text-lg"></i>
+                                        <span class="text-[10px]">Kirish</span>
+                                    </div>
+                                    <div class="flex flex-col items-center cursor-pointer hover:text-white">
+                                        <i class="far fa-heart text-lg"></i>
+                                        <span class="text-[10px] hidden md:block">Saralangan</span>
+                                    </div>
+                                    <div class="flex flex-col items-center cursor-pointer hover:text-white relative">
+                                        <span class="absolute -top-1 -right-1 bg-white text-[#7000FF] text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">1</span>
+                                        <i class="fas fa-shopping-bag text-lg"></i>
+                                        <span class="text-[10px] hidden md:block">Savat</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Banner -->
+                            <div class="m-3 md:m-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 h-24 md:h-32 flex items-center justify-between px-6 md:px-10 shrink-0 text-white shadow-sm">
+                                <div>
+                                    <h3 class="text-lg md:text-2xl font-bold mb-1">Yozgi Savdo!</h3>
+                                    <p class="text-xs md:text-sm opacity-90">-50% gacha chegirmalar</p>
+                                </div>
+                                <i class="fas fa-gift text-4xl md:text-6xl opacity-80"></i>
+                            </div>
+
+                            <!-- Products Grid -->
+                            <div class="px-3 md:px-4 pb-4 grid grid-cols-2 md:grid-cols-4 gap-3 overflow-y-auto">
+                                <!-- Product 1 -->
+                                <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                    <div class="w-full h-24 bg-gray-100 rounded mb-2 flex items-center justify-center">
+                                        <img src="https://images.uzum.uz/cf5m0ggl08k0o9qipj1g/original.jpg" onerror="this.src='https://via.placeholder.com/150?text=Uzum'" class="h-full object-contain mix-blend-multiply" alt="Product">
+                                    </div>
+                                    <div class="h-3 w-3/4 bg-gray-200 rounded mb-1"></div>
+                                    <div class="h-3 w-1/2 bg-yellow-100 rounded"></div>
+                                </div>
+                                <!-- Product 2 -->
+                                <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                    <div class="w-full h-24 bg-gray-100 rounded mb-2 flex items-center justify-center">
+                                         <i class="fas fa-tshirt text-gray-300 text-3xl"></i>
+                                    </div>
+                                    <div class="h-3 w-3/4 bg-gray-200 rounded mb-1"></div>
+                                    <div class="h-3 w-1/2 bg-gray-200 rounded"></div>
+                                </div>
+                                <!-- Product 3 -->
+                                <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                    <div class="w-full h-24 bg-gray-100 rounded mb-2 flex items-center justify-center">
+                                         <i class="fas fa-mobile-alt text-gray-300 text-3xl"></i>
+                                    </div>
+                                    <div class="h-3 w-3/4 bg-gray-200 rounded mb-1"></div>
+                                    <div class="h-3 w-1/2 bg-gray-200 rounded"></div>
+                                </div>
+                                <!-- Product 4 -->
+                                <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
+                                    <div class="w-full h-24 bg-gray-100 rounded mb-2 flex items-center justify-center">
+                                         <i class="fas fa-headphones text-gray-300 text-3xl"></i>
+                                    </div>
+                                    <div class="h-3 w-3/4 bg-gray-200 rounded mb-1"></div>
+                                    <div class="h-3 w-1/2 bg-gray-200 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hover Button -->
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            <a href="https://uzum.uz" target="_blank" class="bg-uzum-main text-white px-6 py-3 rounded-full font-bold shadow-xl transform scale-90 group-hover:scale-100 transition pointer-events-auto flex items-center gap-2">
+                                Saytga o'tish <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Frontend vs Backend (Updated) -->
+            <div class="slide bg-gray-50 flex items-center justify-center">
+                <div class="w-full max-w-6xl px-4 text-center h-full flex flex-col justify-center">
+                    <span class="px-4 py-1 bg-purple-100 text-uzum-main rounded-full text-xs font-bold mb-3 border border-purple-200 inline-block">2-qadam: Ichki tuzilish</span>
+                    <h2 class="text-2xl md:text-4xl font-black text-pdp-dark mb-6">
+                        Sayt <span class="text-pdp-cyan">aslida</span> qanday ishlaydi?
+                    </h2>
+
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-8 w-full items-stretch justify-center h-auto min-h-[400px]">
+
+                        <!-- FRONTEND (Real Product Card) -->
+                        <div class="w-full md:w-5/12 flex flex-col items-center">
+                            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-200 w-full relative h-full flex flex-col overflow-hidden group hover:shadow-2xl transition-all duration-300">
+                                <!-- Badge -->
+                                <div class="absolute top-4 left-4 bg-blue-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg z-20">
+                                    <i class="fas fa-eye mr-1"></i> FRONTEND
+                                </div>
+
+                                <!-- Floating Tags Animation -->
+                                <div class="absolute top-10 right-10 text-orange-400 font-mono text-xs font-bold animate-float opacity-70 bg-white/80 rounded px-1">&lt;h1&gt;</div>
+                                <div class="absolute bottom-10 left-10 text-blue-400 font-mono text-xs font-bold animate-float-delayed opacity-70 bg-white/80 rounded px-1">.btn {}</div>
+
+                                <!-- Real Product Card -->
+                                <div class="flex-1 flex flex-col items-center justify-center py-4 relative z-10">
+                                    <div class="relative w-56 bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col gap-3 transform group-hover:scale-105 transition-transform duration-500">
+                                        <!-- Favorite Icon -->
+                                        <div class="absolute top-3 right-3 text-gray-300 hover:text-red-500">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+
+                                        <!-- Product Image -->
+                                        <div class="w-full h-32 flex items-center justify-center mb-2">
+                                            <i class="fas fa-mobile-alt text-6xl text-gray-800"></i>
+                                        </div>
+
+                                        <!-- Title -->
+                                        <h3 class="text-gray-900 font-bold text-lg leading-tight text-left">Apple iPhone 16 Pro Max</h3>
+
+                                        <!-- Rating -->
+                                        <div class="flex items-center gap-1 text-xs text-gray-500">
+                                            <i class="fas fa-star text-yellow-400"></i>
+                                            <span>5.0 (256)</span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="text-left">
+                                            <div class="text-xs text-gray-400 line-through">19 000 000 so'm</div>
+                                            <div class="text-lg font-bold text-pdp-dark">18 500 000 so'm</div>
+                                        </div>
+
+                                        <!-- Button -->
+                                        <button class="w-full py-2 bg-[#7000FF] text-white rounded-xl font-bold text-sm shadow-md hover:opacity-90 transition active:scale-95">
+                                            Savatga qo'shish
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 text-center relative z-20">
+                                    <h3 class="text-xl font-bold text-gray-800">Tashqi Ko'rinish</h3>
+                                    <p class="text-gray-500 text-xs md:text-sm mt-2 leading-relaxed">
+                                        Foydalanuvchi ko'radigan chiroyli dizayn.<br>
+                                        <span class="text-blue-500 font-semibold">HTML va CSS</span> orqali yasaladi.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ORTADA (Arrow) -->
+                        <div class="hidden md:flex flex-col items-center justify-center w-auto relative z-20">
+                            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-gray-400 border border-gray-100 animate-pulse">
+                                <i class="fas fa-exchange-alt text-xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- BACKEND (Logic Flow) -->
+                        <div class="w-full md:w-5/12 flex flex-col items-center">
+                            <div class="bg-[#1a1b26] p-6 rounded-3xl shadow-2xl border border-gray-700 w-full relative h-full flex flex-col overflow-hidden group">
+                                <!-- Badge -->
+                                <div class="absolute top-4 right-4 bg-yellow-400 text-black text-[10px] font-extrabold px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(250,204,21,0.4)] z-20 tracking-wide">
+                                    <i class="fas fa-cogs mr-1"></i> BACKEND (LOGIKA)
+                                </div>
+
+                                <!-- Background Matrix Effect -->
+                                <div class="absolute inset-0 bg-matrix opacity-10"></div>
+
+                                <!-- Visual Logic Flow -->
+                                <div class="flex-1 flex flex-col items-center justify-center py-6 relative z-10 w-full">
+
+                                    <div class="w-full max-w-xs space-y-3">
+                                        <!-- Step 1: Input -->
+                                        <div class="flex items-center justify-between bg-gray-800/50 p-2 rounded-lg border border-gray-600">
+                                            <span class="text-white text-xs">1. "Sotib olish" bosildi</span>
+                                            <i class="fas fa-mouse-pointer text-blue-400 text-xs"></i>
+                                        </div>
+
+                                        <!-- Arrow Down -->
+                                        <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-500 text-xs"></i></div>
+
+                                        <!-- Step 2: The Logic (Python) -->
+                                        <div class="bg-[#24283b] p-3 rounded-xl border border-pdp-cyan shadow-[0_0_10px_rgba(0,209,209,0.2)]">
+                                            <div class="flex items-center gap-2 mb-2 border-b border-gray-700 pb-1">
+                                                <i class="fab fa-python text-pdp-cyan text-lg"></i>
+                                                <span class="text-pdp-cyan font-bold text-sm">Python Logikasi</span>
+                                            </div>
+                                            <ul class="text-[10px] text-gray-300 space-y-1 font-mono">
+                                                <li class="flex items-center gap-2">
+                                                    <i class="fas fa-question-circle text-yellow-500"></i>
+                                                    <span>Omborda bormi? <span class="text-green-400">HA</span></span>
+                                                </li>
+                                                <li class="flex items-center gap-2">
+                                                    <i class="fas fa-wallet text-green-500"></i>
+                                                    <span>Puli yetadimi? <span class="text-green-400">HA</span></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Arrow Down -->
+                                        <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-500 text-xs"></i></div>
+
+                                        <!-- Step 3: Result -->
+                                        <div class="flex items-center justify-between bg-green-900/30 p-2 rounded-lg border border-green-500/50">
+                                            <span class="text-green-400 text-xs font-bold">3. Sotildi! (Bazaga yozish)</span>
+                                            <i class="fas fa-check-circle text-green-400 text-sm"></i>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-4 text-center border-t border-gray-700/50 pt-4 relative z-20">
+                                    <h3 class="text-xl font-bold text-white">Xarid Mantiqi</h3>
+                                    <p class="text-gray-400 text-xs md:text-sm mt-2 leading-relaxed">
+                                        Sotib olish <span class="text-yellow-400">qarorini</span> Backend qabul qiladi.<br>
+                                        Agar mahsulot tugagan bo'lsa, xatolik beradi.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Hero (Original Slide 1) -->
+            <div class="slide bg-white">
+                <div class="w-full my-auto flex flex-col items-center py-6 md:py-8 text-center">
+                    <span class="px-4 py-1 bg-blue-50 text-pdp-cyan rounded-full text-sm font-bold mb-6 border border-blue-100">Ochiq Dars</span>
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-pdp-dark mb-4">Python</h1>
+                    <p class="text-2xl text-gray-400 mb-8 font-mono">(dasturlash tili)</p>
+                    <div class="w-32 h-32 md:w-40 md:h-40 bg-pdp-cyan rounded-full flex items-center justify-center bg-opacity-10 animate-float mb-8">
+                        <i class="fab fa-python text-6xl md:text-7xl text-pdp-cyan animate-spin-slow"></i>
+                    </div>
+                    <p class="text-lg md:text-2xl text-gray-600 mb-8 max-w-2xl font-medium">O'rganish oson, imkoniyatlari esa juda ko'p!</p>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="nextSlide()" class="bg-pdp-dark text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition shadow-lg text-lg flex items-center gap-2 justify-center">
+                            Boshlash <i class="fas fa-rocket"></i>
+                        </button>
+                        <button onclick="goToSlide(6)" class="bg-white border-2 border-pdp-cyan text-pdp-dark px-8 py-3 rounded-full font-bold hover:bg-cyan-50 transition shadow-lg text-lg flex items-center gap-2 justify-center">
+                            Imkoniyatlarni ko'rish <i class="fas fa-lightbulb text-pdp-cyan"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: O'rganish oson (Python vs C++) -->
+            <div class="slide bg-gray-50">
+                <div class="w-full my-auto flex flex-col items-center py-6 md:py-8 text-center">
+                    <span class="px-4 py-1 bg-pdp-cyan/10 text-pdp-cyan rounded-full text-sm font-bold mb-4 border border-pdp-cyan/20">Nega aynan Python?</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-pdp-dark mb-8">1. O'rganish juda oson <i class="fas fa-magic text-pdp-cyan"></i></h2>
+
+                    <div class="flex flex-col md:flex-row gap-6 w-full max-w-5xl px-4 items-center justify-center relative">
+
+                        <!-- C++ Code Block -->
+                        <div class="bg-[#1E1E1E] p-6 rounded-2xl w-full md:w-1/2 shadow-xl border border-gray-700 text-left relative overflow-hidden group hover:shadow-red-500/10 transition-shadow">
+                            <div class="absolute top-0 right-0 bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1 rounded-bl-lg">Murakkab</div>
+                            <div class="flex items-center gap-3 mb-4 border-b border-gray-700 pb-3">
+                                <i class="fas fa-file-code text-gray-400 text-xl"></i>
+                                <span class="text-gray-300 font-bold font-mono tracking-wider">C++ tili</span>
+                            </div>
+                            <pre class="text-sm md:text-base font-mono text-gray-300 leading-relaxed overflow-x-auto">
+<span class="text-pink-500">#include</span> <span class="text-orange-400">&lt;iostream&gt;</span>
+
+<span class="text-blue-400">int</span> <span class="text-yellow-200">main</span>() {
+    <span class="text-teal-300">std::cout</span> &lt;&lt; <span class="text-orange-300">"Salom Dunyo!"</span>;
+    <span class="text-pink-500">return</span> <span class="text-green-400">0</span>;
+}</pre>
+                        </div>
+
+                        <!-- VS Badge -->
+                        <div class="w-16 h-16 shrink-0 bg-white rounded-full flex items-center justify-center shadow-lg z-10 md:-mx-10 border-4 border-gray-50 text-xl font-black text-gray-400 md:my-0 my-[-20px]">
+                            VS
+                        </div>
+
+                        <!-- Python Code Block -->
+                        <div class="bg-[#1E1E1E] p-6 rounded-2xl w-full md:w-1/2 shadow-xl border-2 border-pdp-cyan text-left relative overflow-hidden group hover:shadow-cyan-500/20 transition-shadow">
+                            <div class="absolute top-0 right-0 bg-pdp-cyan text-pdp-dark text-xs font-bold px-3 py-1 rounded-bl-lg shadow-sm">Oddiy va oson!</div>
+                            <div class="flex items-center gap-3 mb-4 border-b border-gray-700 pb-3">
+                                <i class="fab fa-python text-pdp-cyan text-2xl"></i>
+                                <span class="text-white font-bold font-mono tracking-wider">Python tili</span>
+                            </div>
+                            <pre class="text-sm md:text-base font-mono text-gray-300 leading-relaxed overflow-x-auto">
+<span class="text-gray-500 italic"># Bor yo'g'i bitta qator!</span>
+
+<span class="text-yellow-200">print</span>(<span class="text-orange-300">"Salom Dunyo!"</span>)
+<br><br><br></pre>
+                            <div class="absolute bottom-4 left-6 text-green-400 text-xs font-semibold flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i> Ortiqcha qavslar va qoidalar yo'q!
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Katta Hamjamiyat -->
+            <div class="slide bg-white">
+                <div class="w-full my-auto flex flex-col items-center py-6 md:py-8 text-center">
+                    <span class="px-4 py-1 bg-pdp-cyan/10 text-pdp-cyan rounded-full text-sm font-bold mb-4 border border-pdp-cyan/20">Nega aynan Python?</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-pdp-dark mb-2">2. Katta hamjamiyat <i class="fas fa-users text-pdp-cyan"></i></h2>
+                    <p class="text-gray-500 max-w-2xl px-4 text-sm md:text-base mb-6">Xato qilsangiz hech qachon yolg'iz qolmaysiz. Dunyo bo'ylab millionlab dasturchilar yordam berishga tayyor!</p>
+
+                    <div class="relative w-full max-w-2xl mx-auto h-[240px] md:h-[280px] flex items-center justify-center">
+
+                        <!-- Yordam beruvchi doira -->
+                        <div class="absolute w-[240px] h-[240px] md:w-[280px] md:h-[280px] border-2 border-dashed border-gray-200 rounded-full animate-spin-slow"></div>
+
+                        <!-- Markaziy qism: Yangi Dasturchi -->
+                        <div class="relative z-20 w-20 h-20 bg-pdp-dark rounded-full flex flex-col items-center justify-center shadow-xl border-4 border-white">
+                            <i class="fas fa-user-graduate text-2xl text-pdp-cyan mb-1"></i>
+                            <span class="text-[9px] font-bold text-white tracking-widest uppercase">Siz</span>
+                        </div>
+
+                        <!-- YouTube -->
+                        <div class="absolute z-10 top-0 left-1/2 -translate-x-1/2 -mt-4 md:-mt-6 animate-float" style="animation-delay: 0s;">
+                            <div class="w-14 h-14 bg-white border border-gray-100 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                                <i class="fab fa-youtube text-red-500 text-xl mb-1"></i>
+                                <span class="text-[8px] font-bold text-gray-500">YouTube</span>
+                            </div>
+                        </div>
+
+                        <!-- Telegram -->
+                        <div class="absolute z-10 bottom-0 left-1/2 -translate-x-1/2 mb-2 md:-mb-1 animate-float" style="animation-delay: 1.5s;">
+                            <div class="w-14 h-14 bg-white border border-gray-100 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                                <i class="fab fa-telegram text-blue-500 text-xl mb-1"></i>
+                                <span class="text-[8px] font-bold text-gray-500">Telegram</span>
+                            </div>
+                        </div>
+
+                        <!-- Stack Overflow -->
+                        <div class="absolute z-10 top-1/2 left-0 -translate-y-1/2 ml-2 md:-ml-1 animate-float" style="animation-delay: 0.5s;">
+                            <div class="w-14 h-14 bg-white border border-gray-100 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                                <i class="fab fa-stack-overflow text-orange-500 text-xl mb-1"></i>
+                                <span class="text-[8px] font-bold text-gray-500 leading-tight text-center">Stack<br>Overflow</span>
+                            </div>
+                        </div>
+
+                        <!-- GitHub -->
+                        <div class="absolute z-10 top-1/2 right-0 -translate-y-1/2 mr-2 md:-mr-1 animate-float" style="animation-delay: 1s;">
+                            <div class="w-14 h-14 bg-white border border-gray-100 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                                <i class="fab fa-github text-gray-800 text-xl mb-1"></i>
+                                <span class="text-[8px] font-bold text-gray-500">GitHub</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 px-6 py-2 bg-gray-50 rounded-full text-gray-600 font-semibold text-xs md:text-sm border border-gray-200">
+                        <i class="fas fa-search text-pdp-cyan mr-2"></i> Google'da eng ko'p qidiriladigan va o'rgatiladigan til
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Yakun / Xulosa (Oldingi 6-sahifa) -->
+            <div class="slide bg-pdp-dark relative overflow-hidden text-white flex justify-center items-center">
+                <!-- Bezaklar -->
+                <div class="absolute top-10 right-10 w-32 h-32 bg-pdp-cyan opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-10 left-10 w-48 h-48 bg-pdp-cyan opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Wrapper mukammal markazlashtirildi -->
+                <div class="w-full max-w-4xl px-4 text-center relative z-10 flex flex-col items-center">
+                    <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-md border-4 border-pdp-cyan">
+                        <i class="fas fa-key text-4xl md:text-5xl text-pdp-dark"></i>
+                    </div>
+
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
+                        "Python birgina yo'nalish emas — <br><span class="text-pdp-cyan">ko'p yo'nalishlarga kalit!</span>"
+                    </h2>
+
+                    <p class="text-base md:text-lg text-gray-300 leading-relaxed mb-8 font-medium max-w-2xl mx-auto">
+                        Texnologiya rivojlangan sari tibbiyotda ham, moliya sohasida ham, koinotda ham Python ishlatilmoqda. Bugun Python'ni tanlasangiz, ertaga ko'p eshiklar ochiladi!
+                    </p>
+
+                    <!-- items-start ga o'tkazildi -->
+                    <div class="bg-white/10 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-white/10 w-full max-w-3xl text-left space-y-4 mx-auto shadow-2xl">
+                        <div class="flex items-start gap-4">
+                            <span class="w-8 h-8 rounded-full bg-pdp-cyan text-pdp-dark flex items-center justify-center font-bold text-sm shrink-0 mt-1">1</span>
+                            <p class="text-base md:text-xl font-medium text-white">
+                                Python — boshlash uchun juda oson va tushunarli.
+                            </p>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="w-8 h-8 rounded-full bg-white text-pdp-dark flex items-center justify-center font-bold text-sm shrink-0 mt-1">2</span>
+                            <p class="text-base md:text-xl font-medium text-white">
+                                Dasturlash orqali faqat kompyuter ustasi emas, kelajak muhandisiga aylanasiz.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Sohalar ko'p + Bubble Map (Modified with Highlights) -->
+            <div class="slide bg-gradient-to-br from-gray-50 to-white overflow-hidden relative">
+                <!-- Decorative BG Elements -->
+                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-pdp-cyan/5 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+                <div class="w-full h-full flex flex-col-reverse md:flex-row items-center justify-between max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-8 z-10">
+
+                    <!-- Text Content (Left Side) -->
+                    <div class="w-full md:w-1/3 text-center md:text-left mt-8 md:mt-0 flex flex-col items-center md:items-start z-20">
+                        <span class="px-5 py-2 bg-white text-pdp-cyan rounded-full text-sm font-bold mb-6 border border-pdp-cyan/30 shadow-sm inline-block">
+                            Nega aynan Python?
+                        </span>
+                        <h2 class="text-3xl md:text-5xl font-black text-pdp-dark mb-6 leading-tight">
+                            3. Sohalar ko'p: <br/>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-pdp-cyan to-blue-600">Nimalar qila oladi?</span>
+                        </h2>
+                        <p class="text-gray-600 text-base md:text-xl mb-8 leading-relaxed font-medium">
+                            Veb-saytlar, telegram botlar, sun'iy intellekt, ma'lumotlar bazasi va hatto o'yinlar...
+                        </p>
+                        <div class="flex items-center gap-2 p-3 bg-red-50 rounded-xl border border-red-100 shadow-sm">
+                            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                            <span class="text-red-500 font-bold text-sm">Bizning kursda mavjud yo'nalishlar</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Content (Right/Center - Enlarged) -->
+                    <div class="w-full md:w-2/3 h-[50vh] md:h-full flex items-center justify-center relative">
+                        <div class="relative w-full aspect-square max-w-[300px] md:max-w-[450px] group-container">
+
+                            <!-- Spinning Rings -->
+                            <div class="absolute inset-0 rounded-full border-[3px] border-dashed border-gray-200 animate-[spin_60s_linear_infinite]"></div>
+                            <div class="absolute inset-[20px] rounded-full border border-gray-100 animate-[spin_40s_linear_infinite_reverse]"></div>
+
+                            <!-- Center Python Logo (Pulsating & Glowing) -->
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-32 h-32 md:w-48 md:h-48 bg-white rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(0,209,209,0.3)] border-8 border-white relative transition-transform duration-500 hover:scale-110">
+                                <div class="absolute inset-0 bg-pdp-cyan/10 rounded-full animate-ping opacity-20"></div>
+                                <i class="fab fa-python text-[5rem] md:text-[7rem] text-transparent bg-clip-text bg-gradient-to-br from-[#3776AB] to-[#FFD343] drop-shadow-xl"></i>
+                            </div>
+
+                            <!-- Orbiting Items (Common Classes: absolute, transition, hover effects) -->
+
+                            <!-- 1. AI (Top) - COURSE ITEM -->
+                            <div class="absolute top-[0%] left-[50%] -translate-x-1/2 -translate-y-1/2 group z-30">
+                                <div class="absolute -top-3 -right-3 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-40 animate-bounce shadow-md border border-white">KURSDA</div>
+                                <div class="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl shadow-[0_0_15px_rgba(168,85,247,0.5)] flex items-center justify-center border-4 border-red-400 hover:scale-125 transition-all duration-300 cursor-pointer z-10 relative">
+                                    <i class="fas fa-brain text-2xl md:text-4xl text-purple-600"></i>
+                                </div>
+                                <div class="absolute top-full mt-3 left-1/2 -translate-x-1/2 opacity-100 transition-all duration-300 transform translate-y-0">
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs md:text-sm font-bold whitespace-nowrap shadow-xl">Sun'iy intellekt</span>
+                                </div>
+                            </div>
+
+                            <!-- 2. DevOps (Top Right) - MUTED -->
+                            <div class="absolute top-[14.6%] left-[85.4%] -translate-x-1/2 -translate-y-1/2 group z-20 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                <div class="w-14 h-14 md:w-20 md:h-20 bg-gray-50 rounded-2xl shadow-sm flex items-center justify-center border border-gray-200">
+                                    <i class="fas fa-infinity text-xl md:text-3xl text-gray-400"></i>
+                                </div>
+                                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">DevOps</span>
+                                </div>
+                            </div>
+
+                            <!-- 3. Web (Right) - COURSE ITEM -->
+                            <div class="absolute top-[50%] left-[100%] -translate-x-1/2 -translate-y-1/2 group z-30">
+                                <div class="absolute -top-3 -right-3 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-40 animate-bounce shadow-md border border-white">KURSDA</div>
+                                <div class="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl shadow-[0_0_15px_rgba(79,70,229,0.5)] flex items-center justify-center border-4 border-red-400 hover:scale-125 transition-all duration-300 cursor-pointer z-10 relative">
+                                    <i class="fas fa-laptop-code text-2xl md:text-4xl text-indigo-600"></i>
+                                </div>
+                                <div class="absolute top-full mt-3 left-1/2 -translate-x-1/2 opacity-100 transition-all duration-300 transform translate-y-0">
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs md:text-sm font-bold whitespace-nowrap shadow-xl">Web Dasturlash</span>
+                                </div>
+                            </div>
+
+                            <!-- 4. Data Analytics (Bottom Right) - MUTED -->
+                            <div class="absolute top-[85.4%] left-[85.4%] -translate-x-1/2 -translate-y-1/2 group z-20 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                <div class="w-14 h-14 md:w-20 md:h-20 bg-gray-50 rounded-2xl shadow-sm flex items-center justify-center border border-gray-200">
+                                    <i class="fas fa-chart-line text-xl md:text-3xl text-gray-400"></i>
+                                </div>
+                                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">Data Analitik</span>
+                                </div>
+                            </div>
+
+                            <!-- 5. Games (Bottom) - COURSE ITEM -->
+                            <div class="absolute top-[100%] left-[50%] -translate-x-1/2 -translate-y-1/2 group z-30">
+                                <div class="absolute -top-3 -right-3 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-40 animate-bounce shadow-md border border-white">KURSDA</div>
+                                <div class="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl shadow-[0_0_15px_rgba(34,197,94,0.5)] flex items-center justify-center border-4 border-red-400 hover:scale-125 transition-all duration-300 cursor-pointer z-10 relative">
+                                    <i class="fas fa-gamepad text-2xl md:text-4xl text-green-600"></i>
+                                </div>
+                                <div class="absolute top-full mt-3 left-1/2 -translate-x-1/2 opacity-100 transition-all duration-300 transform translate-y-0">
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs md:text-sm font-bold whitespace-nowrap shadow-xl">O'yinlar</span>
+                                </div>
+                            </div>
+
+                            <!-- 6. Security (Bottom Left) - MUTED -->
+                            <div class="absolute top-[85.4%] left-[14.6%] -translate-x-1/2 -translate-y-1/2 group z-20 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                <div class="w-14 h-14 md:w-20 md:h-20 bg-gray-50 rounded-2xl shadow-sm flex items-center justify-center border border-gray-200">
+                                    <i class="fas fa-shield-alt text-xl md:text-3xl text-gray-400"></i>
+                                </div>
+                                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">Xavfsizlik</span>
+                                </div>
+                            </div>
+
+                            <!-- 7. Bot (Left) - COURSE ITEM -->
+                            <div class="absolute top-[50%] left-[0%] -translate-x-1/2 -translate-y-1/2 group z-30">
+                                <div class="absolute -top-3 -right-3 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-40 animate-bounce shadow-md border border-white">KURSDA</div>
+                                <div class="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl shadow-[0_0_15px_rgba(20,184,166,0.5)] flex items-center justify-center border-4 border-red-400 hover:scale-125 transition-all duration-300 cursor-pointer z-10 relative">
+                                    <i class="fas fa-robot text-2xl md:text-4xl text-teal-600"></i>
+                                </div>
+                                <div class="absolute top-full mt-3 left-1/2 -translate-x-1/2 opacity-100 transition-all duration-300 transform translate-y-0">
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs md:text-sm font-bold whitespace-nowrap shadow-xl">Telegram Bot</span>
+                                </div>
+                            </div>
+
+                            <!-- 8. Data Science (Top Left) - MUTED -->
+                            <div class="absolute top-[14.6%] left-[14.6%] -translate-x-1/2 -translate-y-1/2 group z-20 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                <div class="w-14 h-14 md:w-20 md:h-20 bg-gray-50 rounded-2xl shadow-sm flex items-center justify-center border border-gray-200">
+                                    <i class="fas fa-atom text-xl md:text-3xl text-gray-400"></i>
+                                </div>
+                                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">Data Science</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let currentSlide = 0;
+        const slidesWrapper = document.getElementById('slidesWrapper');
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const counterElement = document.getElementById('slide-counter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateSlide() {
+            slidesWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+            counterElement.innerText = `${currentSlide + 1} / ${totalSlides}`;
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        function goToStart() {
+            currentSlide = 0;
+            updateSlide();
+        }
+
+        updateSlide();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            }
+            else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const threshold = 50;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            if (touchStartX - touchEndX > threshold) nextSlide();
+            if (touchEndX - touchStartX > threshold) prevSlide();
+        }
+    </script>
+</body>
+</html>
